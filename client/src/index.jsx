@@ -16,7 +16,7 @@ class App extends React.Component {
   search (term) {
     console.log(`${term} was searched`);
     $.post('/repos', { user: term }, (data) => {
-      console.log(data);
+      console.log(data.repos);
     });
   }
 

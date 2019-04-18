@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-// mongoose.Promise = require('bluebird');
+mongoose.Promise = require('bluebird');
 mongoose.connect('mongodb://localhost/fetcher', {useNewUrlParser: true }); //{ useMongoClient: true }
 
 mongoose.set('useCreateIndex', true);
@@ -28,7 +28,9 @@ let Repo = mongoose.model('Repo', repoSchema);
 
 let save = (gitRepoArr) => {
   const repos = gitRepoArr; //JSON.parse(gitRepoArr);
+  // let user;
   for (let instance of repos) {
+    user = instance.owner.id;
     let queryValues = {
       id_repo: instance.id,
       name: instance.name,
@@ -46,7 +48,7 @@ let save = (gitRepoArr) => {
       if (err) {
         if (err.code !== 11000) {
           return console.error(err);
-        }else {
+        } else {
           console.log(`Duplicate detected ${instance.name}`);
           delete queryValues.id_repo;
           Repo.findOneAndUpdate({_id: instance.id},{$set: queryValues}, {new: true})
@@ -59,6 +61,9 @@ let save = (gitRepoArr) => {
       }
     });
   }
+  // let results = Repo.find({login: user});
+  // console.log(results);
+  // return results;
   // Possibly close connection
   // mongoose.connection.close();
   process.on('SIGINT', function() {
