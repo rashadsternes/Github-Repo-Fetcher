@@ -27,9 +27,9 @@ let repoSchema = new mongoose.Schema({
 let Repo = mongoose.model('Repo', repoSchema);
 
 let save = (gitRepoArr) => {
-  const repos = JSON.parse(gitRepoArr);
+  const repos = gitRepoArr; //JSON.parse(gitRepoArr);
   for (let instance of repos) {
-    var repoInstance = new Repo({
+    let queryValues = {
       id_repo: instance.id,
       name: instance.name,
       html_url: instance.html_url,
@@ -39,13 +39,21 @@ let save = (gitRepoArr) => {
       stargazers_count: instance.stargazers_count,
       id_Owners: instance.owner.id,
       login: instance.owner.login,
-      avatarUrl: instance.owner.avatarUrl
-    });
+      avatarUrl: instance.owner.avatarUrl,
+    };
+    var repoInstance = new Repo(queryValues);
     repoInstance.save(function (err, repoInstance) {
       if (err) {
         if (err.code !== 11000) {
           return console.error(err);
-        }else {console.log(`Duplicate detected ${instance.name}`);}
+        }else {
+          console.log(`Duplicate detected ${instance.name}`);
+          delete queryValues.id_repo;
+          Repo.findOneAndUpdate({_id: instance.id},{$set: queryValues}, {new: true})
+          // .then((stat) => {
+          //   console.log(stat);
+          // })
+        }
       } else {
         console.log(`Success ${repoInstance.name}`);
       }
