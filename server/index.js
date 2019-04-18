@@ -3,15 +3,12 @@ const app = express();
 const bodyParser = require('body-parser');
 const request = require('request');
 const {TOKEN, USERNAME} = require('../config.js');
+const storeOnDb = require('../database/index.js').save;
 
 app.use(express.static(__dirname + '/../client/dist'));
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.post('/repos', function (req, res) {
-  // TODO - your code here!
-  // This route should take the github username provided
-  // and get the repo information from the github API, then
-  // save the repo information in the database
   let {user} = req.body;
   let options = {
     url: `https://api.github.com/users/${user}/repos`,
@@ -22,11 +19,13 @@ app.post('/repos', function (req, res) {
   };
   request.get(options, (err, response, body) => {
     if(err){ throw err; }
-    // console.log(response);
     let githubRepoArr = JSON.parse(body);
-    console.log(githubRepoArr);
+    storeOnDb(githubRepoArr);
+    // Upon successful storage either
+    // (a) Make subsequent database query to db for 25 repos sorted on updated_at
+    // (b) Attach the wanted 25 repos to a successful promise
+    res.send({stat: `Successful lookup of ${user}`, repos: body });
   });
-  res.send({data: `Successful lookup of ${req.body.user}`});
 });
 
 app.get('/repos', function (req, res) {
