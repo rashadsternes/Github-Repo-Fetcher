@@ -3,7 +3,7 @@ import React from 'react';
 const RepoList = (props) => (
   <div>
     <h4> Repo List Component </h4>
-    There are {props.repos.length} repos.
+    There are {props.repos.length} repos. {props.stat ? props.msg :""}
     <ul>
       {props.repos.map((repo, ind) =>
         <li>#{ind + 1} <a key={repo.id_repo.toString()} href={repo.html_url}
