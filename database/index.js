@@ -72,4 +72,12 @@ let save = (gitRepoArr, callback) => {
   });
 }
 
+let retrieve = (callback) => {
+  Repo.find({})
+  .then((data) => {
+    callback(data);
+  });
+};
+
 module.exports.save = save;
+module.exports.retrieve = retrieve;

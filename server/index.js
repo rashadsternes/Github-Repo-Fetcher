@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const {TOKEN, USERNAME} = require('../config.js');
 const storeOnDb = require('../database/index.js').save;
+const { retrieve } = require('../database/index.js');
 const getReposByUsername = require('../helpers/github').getReposByUsername;
 
 app.use(express.static(__dirname + '/../client/dist'));
@@ -15,15 +16,19 @@ app.post('/repos', function (req, res) {
     getReposByUsername(user, (repoRaw) => {
       // Upon successful storage either attach the wanted 25 repos to a successful promise
       storeOnDb(repoRaw, (value) =>{
-        let top25 = value.sort((a,b) => a.updated_at - b.updated_at ).slice(0, 25);
+        let top25 = value.sort((a,b) => b.updated_at - a.updated_at ).slice(0, 25);
         res.send({stat: `Successful lookup of ${user}`, repos: top25 });
       });
     });
-});
+  });
 
 app.get('/repos', function (req, res) {
-  // TODO - your code here!
-  // This route should send back the top 25 repos
+  retrieve( (data) => {
+    let top25 = data.sort((a,b) => b.updated_at - a.updated_at )
+      .sort((a,b) => b.stargazers_count - a.stargazers_count )
+      .slice(0, 25);
+    res.send({ repos: top25 });
+  })
 });
 
 let port = 1128;
