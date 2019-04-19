@@ -40,7 +40,8 @@ let save = (gitRepoArr, callback) => {
       stargazers_count: instance.stargazers_count,
       id_Owners: instance.owner.id,
       login: instance.owner.login,
-      avatarUrl: instance.owner.avatarUrl,
+      avatarUrl: instance.owner.avatar_Url,
+      ownerUrl: instance.owner.url,
     };
     let conditional = {id_repo: instance.id};
     let options = {new: true, upsert: true};
