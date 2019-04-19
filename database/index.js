@@ -26,11 +26,10 @@ let repoSchema = new mongoose.Schema({
 
 let Repo = mongoose.model('Repo', repoSchema);
 
-let save = (gitRepoArr) => {
-  const repos = gitRepoArr; //JSON.parse(gitRepoArr);
-  // let user;
+let save = (gitRepoArr, callback) => {
+  const repos = gitRepoArr;
+  let allRepos = [];
   for (let instance of repos) {
-    user = instance.owner.id;
     let queryValues = {
       id_repo: instance.id,
       name: instance.name,
@@ -43,27 +42,26 @@ let save = (gitRepoArr) => {
       login: instance.owner.login,
       avatarUrl: instance.owner.avatarUrl,
     };
-    var repoInstance = new Repo(queryValues);
-    repoInstance.save(function (err, repoInstance) {
-      if (err) {
-        if (err.code !== 11000) {
-          return console.error(err);
-        } else {
-          console.log(`Duplicate detected ${instance.name}`);
-          delete queryValues.id_repo;
-          Repo.findOneAndUpdate({_id: instance.id},{$set: queryValues}, {new: true})
-          // .then((stat) => {
-          //   console.log(stat);
-          // })
+    let conditional = {id_repo: instance.id};
+    let options = {new: true, upsert: true};
+    let repoPromises = new Promise ((resolve, reject) => {
+      Repo.findOneAndUpdate(conditional, queryValues, options, (err, data) => {
+        if (err) { reject (err); }
+        else {
+          console.log(`Success ${data.name}`);
+          resolve(data);
         }
-      } else {
-        console.log(`Success ${repoInstance.name}`);
-      }
+      });
     });
+    allRepos.push(repoPromises);
   }
-  // let results = Repo.find({login: user});
-  // console.log(results);
-  // return results;
+  Promise.all(allRepos)
+    .then((data) => {
+      callback(data);
+    })
+    .catch((err) => {
+      throw err;
+    });
   // Possibly close connection
   // mongoose.connection.close();
   process.on('SIGINT', function() {
