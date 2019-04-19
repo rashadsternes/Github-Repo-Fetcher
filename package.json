@@ -2,6 +2,9 @@
   "name": "github-fetcher-fullstack-v2",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "10.x"
+  },
   "main": "index.js",
   "scripts": {
     "react-dev": "webpack -d --watch",
