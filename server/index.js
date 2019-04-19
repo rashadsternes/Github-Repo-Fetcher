@@ -1,8 +1,6 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const request = require('request');
-const {TOKEN, USERNAME} = require('../config.js');
 const storeOnDb = require('../database/index.js').save;
 const { retrieve } = require('../database/index.js');
 const getReposByUsername = require('../helpers/github').getReposByUsername;
