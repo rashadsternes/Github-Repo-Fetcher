@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import Search from './components/Search.jsx';
 import RepoList from './components/RepoList.jsx';
+import Users from './components/Users.jsx';
 
 class App extends React.Component {
   constructor(props) {
@@ -11,14 +12,15 @@ class App extends React.Component {
       repos: [],
       newRepo: 0,
       updatedRepo: 0,
-      stat: false
+      stat: false,
+      users: [],
     }
 
   }
   componentDidMount () {
     $.get('/repos', (data) => {
       console.log(data);
-      this.setState({repos: data.repos});
+      this.setState({repos: data.repos, users: data.allUsers});
     })
   }
   search (term) {
@@ -30,6 +32,7 @@ class App extends React.Component {
         newRepo: data.newRepo.length,
         updatedRepo: data.updatedRepo.length,
         stat: true,
+        users: data.allUsers,
       });
     });
   }
@@ -39,6 +42,7 @@ class App extends React.Component {
     return (<div>
       <h1>Github Fetcher</h1>
       <RepoList repos={this.state.repos} stat={this.state.stat} msg={msg} />
+      <Users users={this.state.users} />
       <Search onSearch={this.search.bind(this)}/>
     </div>)
   }

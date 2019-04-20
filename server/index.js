@@ -46,7 +46,8 @@ app.get('/repos', function (req, res) {
     let top25 = data.sort((a,b) => b.updated_at - a.updated_at )
       .sort((a,b) => b.stargazers_count - a.stargazers_count )
       .slice(0, 25);
-    res.send({ repos: top25 });
+      let allUsers = [...new Set(data.map(o => o.login))];
+    res.send({ repos: top25, allUsers });
   });
 });
 

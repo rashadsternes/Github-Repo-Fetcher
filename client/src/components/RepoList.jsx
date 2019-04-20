@@ -6,7 +6,7 @@ const RepoList = (props) => (
     There are {props.repos.length} repos. {props.stat ? props.msg :""}
     <ul>
       {props.repos.map((repo, ind) =>
-        <li>#{ind + 1} <a key={repo.id_repo.toString()} href={repo.html_url}
+        <li key={repo.id_repo.toString()}>#{ind + 1} <a href={repo.html_url}
         target="_blank" >{repo.name}</a></li>
       )}
     </ul>

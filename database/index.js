@@ -40,6 +40,7 @@ let Collab = mongoose.model('Collab', collabSchema);
 
 let save = (repos, callback) => {
   let allRepos = [];
+  console.log(repos);
   for (let instance of repos) {
     let queryValues = {
       id_repo: instance.id,
@@ -51,7 +52,7 @@ let save = (repos, callback) => {
       stargazers_count: instance.stargazers_count,
       id_Owners: instance.owner.id,
       login: instance.owner.login,
-      avatarUrl: instance.owner.avatar_Url,
+      avatarUrl: instance.owner.avatar_url,
       ownerUrl: instance.owner.url,
     };
     let conditional = {id_repo: instance.id};
