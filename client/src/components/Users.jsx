@@ -5,7 +5,7 @@ const Users = (props) => (
     <h4> Users </h4>
     <ul>
       {props.users.map(user => {
-        return <li key={user}>{user}</li>
+        return <li key={user}><a href={`https://github.com/${user}`}>{user}</a></li>
       })}
     </ul>
   </div>

@@ -9,30 +9,50 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.post('/repos', function (req, res) {
   let {user} = req.body;
-  getReposByUsername(user, (repoRaw) => {
-    let collabs = { user, list: [] };
-    repoRaw.forEach(val => {
-      getColloborators(val.collaborators_url.split('{')[0], (collaborators) => {
-        collaborators.forEach(person => {
-          if (person.login !== user) { collabs.list.push(person.login); }
-        });
-      });
+  let getReposPromise = new Promise ((resolve, reject) => {
+    getReposByUsername(user, (repoRaw) => {
+      resolve(repoRaw);
     });
-    // Upon successful storage either attach the wanted 25 repos to a successful promise
-    retrieve((origStorage) => {
-      save(repoRaw, (recentStorage) => {
-        let recent = recentStorage.map((r) => r.id_repo);
-        let orig = origStorage.map((o) => o.id_repo);
-        let updatedRepo = recent.filter((r) => orig.includes(r));
-        let newRepo = recent.filter((r) => !orig.includes(r));
-        retrieve( (final) => {
-          let top25 = final.sort((a,b) => b.updated_at - a.updated_at )
+  });
+  getReposPromise.then( (repoRaw) => {
+    const getCollabsPromise = new Promise ((resolve, reject) => {
+      let allPromises = [];
+      repoRaw.forEach(val => {
+        let url = val.collaborators_url.split('{')[0];
+        let indivPromise = new Promise((res, rej) => {
+          getColloborators(url, (collaborators) => res(collaborators));
+        });
+        allPromises.push(indivPromise);
+      });
+      Promise.all(allPromises)
+      .then((data) => resolve(data));
+    });
+    getCollabsPromise.then((collaborators) => {
+      let list = [];
+      collaborators.forEach(repo => {
+        if (typeof repo[0] === 'object' && !Array.isArray(repo[0])) {
+          repo.forEach(person => person.login === user ? list.push(person.login) : null );
+        }
+      });
+      list = [...new Set(list)];
+      retrieve((initialRepos) => {
+        save(repoRaw, (recentStorage) => {
+          let top10 = recentStorage.sort((a,b) => b.updated_at - a.updated_at )
+              .sort((a,b) => b.stargazers_count - a.stargazers_count )
+              .slice(0, 10);
+          let recent = recentStorage.map((r) => r.id_repo);
+          let orig = initialRepos.map((o) => o.id_repo);
+          let updatedRepo = recent.filter((r) => orig.includes(r));
+          let newRepo = recent.filter((r) => !orig.includes(r));
+          retrieve( (final) => {
+            let top25 = final.sort((a,b) => b.updated_at - a.updated_at )
             .sort((a,b) => b.stargazers_count - a.stargazers_count )
             .slice(0, 25);
-          let allUsers = [...new Set(final.map(o => o.login))];
-          saveCollab(collabs, (recent) => {
-            retrieveCollab( (everyCollaborator) => {
-              res.send({ repos: top25, newRepo, updatedRepo, everyCollaborator, allUsers });
+            let allUsers = [...new Set(final.map(o => o.login))];
+            saveCollab({user, list}, (recent) => {
+              // retrieveCollab(user, (everyCollaborator) => {
+                res.send({ repos: top25, top10, newRepo, updatedRepo, list, allUsers });
+              // });
             });
           });
         });

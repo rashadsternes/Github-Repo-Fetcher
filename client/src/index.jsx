@@ -4,6 +4,7 @@ import $ from 'jquery';
 import Search from './components/Search.jsx';
 import RepoList from './components/RepoList.jsx';
 import Users from './components/Users.jsx';
+import User from './components/User.jsx';
 
 class App extends React.Component {
   constructor(props) {
@@ -14,8 +15,9 @@ class App extends React.Component {
       updatedRepo: 0,
       stat: false,
       users: [],
+      top10: [],
+      friends: [],
     }
-
   }
   componentDidMount () {
     $.get('/repos', (data) => {
@@ -33,17 +35,22 @@ class App extends React.Component {
         updatedRepo: data.updatedRepo.length,
         stat: true,
         users: data.allUsers,
+        friends: data.list,
+        top10: data.top10,
       });
     });
   }
 
   render () {
     let msg = `${this.state.newRepo} new repos imported, ${this.state.updatedRepo} repos updated`;
+    let showUser = <div className="user"></div>
+    if (this.state.stat){ showUser = <User top10={this.state.top10} friends={this.state.friends} />;}
     return (<div>
       <h1>Github Fetcher</h1>
-      <RepoList repos={this.state.repos} stat={this.state.stat} msg={msg} />
-      <Users users={this.state.users} />
       <Search onSearch={this.search.bind(this)}/>
+      <Users users={this.state.users} />
+      {showUser}
+      <RepoList repos={this.state.repos} stat={this.state.stat} msg={msg} />
     </div>)
   }
 }

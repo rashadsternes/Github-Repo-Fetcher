@@ -40,7 +40,6 @@ let Collab = mongoose.model('Collab', collabSchema);
 
 let save = (repos, callback) => {
   let allRepos = [];
-  console.log(repos);
   for (let instance of repos) {
     let queryValues = {
       id_repo: instance.id,
@@ -91,8 +90,8 @@ let retrieve = (callback) => {
     callback(data);
   });
 };
-let retrieveCollab = (callback) => {
-  Collab.find({})
+let retrieveCollab = (user, callback) => {
+  Collab.find({user})
   .then((data) => {
     callback(data);
   })
