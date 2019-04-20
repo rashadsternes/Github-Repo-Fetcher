@@ -29,9 +29,10 @@ app.post('/repos', function (req, res) {
           let top25 = final.sort((a,b) => b.updated_at - a.updated_at )
             .sort((a,b) => b.stargazers_count - a.stargazers_count )
             .slice(0, 25);
+          let allUsers = [...new Set(final.map(o => o.login))];
           saveCollab(collabs, (recent) => {
             retrieveCollab( (everyCollaborator) => {
-              res.send({ repos: top25, newRepo, updatedRepo, everyCollaborator });
+              res.send({ repos: top25, newRepo, updatedRepo, everyCollaborator, allUsers });
             });
           });
         });
