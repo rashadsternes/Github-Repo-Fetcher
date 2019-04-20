@@ -15,4 +15,19 @@ let getReposByUsername = (user, callback) => {
   });
 }
 
+let getColloborators = (url, callback) => {
+  let options = {
+    url: url,
+    headers: {
+      'User-Agent': config.USERNAME, // process.env.USERNAME, // config.USERNAME,
+      'Authorization': `token ${config.TOKEN}`, // `token ${process.env.TOKEN}` // `token ${config.TOKEN}`,
+    }
+  };
+  request.get(options, (err, response, body) => {
+    if(err){ throw err; }
+    callback(JSON.parse(body));
+  });
+}
+
 module.exports.getReposByUsername = getReposByUsername;
+module.exports.getColloborators = getColloborators;

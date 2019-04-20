@@ -26,8 +26,19 @@ let repoSchema = new mongoose.Schema({
 
 let Repo = mongoose.model('Repo', repoSchema);
 
-let save = (gitRepoArr, callback) => {
-  const repos = gitRepoArr;
+let collabSchema = new mongoose.Schema({
+  user: String,
+  collabName: String,
+  collabLink: String,
+  combo: {
+    type: String,
+    index: {unique: true},
+  },
+});
+
+let Collab = mongoose.model('Collab', collabSchema);
+
+let save = (repos, callback) => {
   let allRepos = [];
   for (let instance of repos) {
     let queryValues = {
@@ -79,6 +90,44 @@ let retrieve = (callback) => {
     callback(data);
   });
 };
+let retrieveCollab = (callback) => {
+  Collab.find({})
+  .then((data) => {
+    callback(data);
+  })
+};
 
+let saveCollab = (collabs, callback) => {
+  let allCollabs = [];
+  for (let person of collabs.list) {
+    let queryValues = {
+      user: collabs.user,
+      collabName: person,
+      collabLink: `https://github.com/${person}`,
+      combo: `${collabs.user}${person}`,
+    };
+    let collabInstance = new Collab (queryValues);
+    let collabPromise = new Promise ((resolve, reject) => {
+      collabInstance.save( function (err, collabInstance) {
+        if (err) {
+          if (err.code !== 11000){ reject(err) }
+          else{ resolve('Duplicate');}
+        } else {
+          resolve(collabInstance);
+        }
+      });
+    });
+    allCollabs.push(collabPromise);
+  }
+  Promise.all(allCollabs)
+    .then((data) => {
+      callback(data);
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
 module.exports.save = save;
 module.exports.retrieve = retrieve;
+module.exports.saveCollab = saveCollab;
+module.exports.retrieveCollab = retrieveCollab;
