@@ -5,7 +5,7 @@ mongoose.connect(process.env.MONGODB_URI);
 
 
 mongoose.set('useCreateIndex', true);
-mongoose.connection.on('connected', () => console.log("Mongoose default connection is open to ", 'mongodb://localhost/fetcher'));
+mongoose.connection.on('connected', () => console.log("Mongoose default connection is open to "));
 mongoose.connection.on('error', (err) => console.log("Mongoose default connection has occured "+err+" error"));
 mongoose.connection.on('disconnected', () => console.log("Mongoose default connection is disconnected"));
 
