@@ -5,10 +5,10 @@
   "engines": {
     "node": "10.x"
   },
-  "main": "index.js",
+  "main": "index2.js",
   "scripts": {
     "react-dev": "webpack -d --watch",
-    "server-dev": "nodemon server/index.js"
+    "server-dev": "nodemon server/index2.js"
   },
   "author": "Beth Johnson",
   "license": "ISC",
@@ -28,6 +28,8 @@
     "jquery": "^3.1.1",
     "mongodb": "^3.2.3",
     "mongoose": "^5.5.2",
+    "mysql": "^2.17.1",
+    "promise-mysql": "^3.3.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "request": "^2.88.0"

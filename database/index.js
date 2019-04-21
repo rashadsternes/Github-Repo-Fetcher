@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
-// mongoose.connect('mongodb://localhost/fetcher', {useNewUrlParser: true });
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect('mongodb://localhost/fetcher', {useNewUrlParser: true });
+// mongoose.connect(process.env.MONGODB_URI);
 
 
 mongoose.set('useCreateIndex', true);
-mongoose.connection.on('connected', () => console.log("Mongoose default connection is open to "));
+mongoose.connection.on('connected', () => console.log("Mongoose default connection is open "));
 mongoose.connection.on('error', (err) => console.log("Mongoose default connection has occured "+err+" error"));
 mongoose.connection.on('disconnected', () => console.log("Mongoose default connection is disconnected"));
 
