@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
-mongoose.connect('mongodb://localhost/fetcher', {useNewUrlParser: true }); //{ useMongoClient: true }
+// mongoose.connect('mongodb://localhost/fetcher', {useNewUrlParser: true });
+mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true });
+
 
 mongoose.set('useCreateIndex', true);
 mongoose.connection.on('connected', () => console.log("Mongoose default connection is open to ", 'mongodb://localhost/fetcher'));
