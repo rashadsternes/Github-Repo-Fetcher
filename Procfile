@@ -1,2 +1,2 @@
 web: node server/index.js
-worker: npm run react-dev
+worker: client/dist/bundle.js
