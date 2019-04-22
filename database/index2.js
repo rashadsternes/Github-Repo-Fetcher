@@ -2,11 +2,12 @@ const mysql = require('promise-mysql');
 const { createCollabTable, createRepoTable, selectAllRepos, insertRepo, insertCollab, allRepoByName } = require('./queryStrings');
 const { convertToArr, convertToCollab } = require('../helpers/github');
 
-const details = {
-  host: 'localhost',
-  user: 'root',
-  database: 'fetcher',
-};
+// const details = {
+//   host: 'localhost',
+//   user: 'root',
+//   database: 'fetcher',
+// };
+const details = process.env.JAWSDB_URL;
 
 const create = () => {
   mysql.createConnection(details).then((db) => {
