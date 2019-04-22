@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const { create, retrieve } = require('../database/index2.js');
-const { getReposByUsername, getColloborators } = require('../helpers/github');
+const { create, retrieve, save, saveCollab } = require('../database/index2.js');
+const { getReposByUsername, getColloborators, repoFilter } = require('../helpers/github');
 const port = process.env.PORT || 1128;
 
 
@@ -12,17 +12,13 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.post('/repos', function (req, res) {
   create();
   let {user} = req.body;
-  let repoJson;
   let list = [];
-  let initialRepos;
   let getReposPromise = new Promise ((resolve, reject) => {
     getReposByUsername(user, (repoRaw) => {
       resolve(repoRaw);
     });
   });
-  getReposPromise.then( (repoRaw) => {
-    repoJSON = repoRaw;
-  }).then(() => {
+  getReposPromise.then( (repoJSON) => {
     const getCollabsPromise = new Promise ((resolve, reject) => {
       let allPromises = [];
       repoJSON.forEach(val => {
@@ -33,7 +29,9 @@ app.post('/repos', function (req, res) {
         allPromises.push(indivPromise);
       });
       Promise.all(allPromises)
-      .then((data) => resolve(data));
+      .then((data) => {
+        resolve(data)
+      });
     });
     getCollabsPromise.then((collaborators) => {
       collaborators.forEach(repo => {
@@ -42,48 +40,37 @@ app.post('/repos', function (req, res) {
         }
       });
       list = [...new Set(list)];
-    })
-  }).then(() => {
-     return retrieve()
-  }).then((data) => {
-      initialRepos = data;
-    }).catch((err) => {
-      console.log(err);
-    })
-    // save repos into db
-    // save(repoRaw, (recentStorage) => {
-    //   let top10 = recentStorage.sort((a,b) => b.updated_at - a.updated_at )
-    //       .sort((a,b) => b.stargazers_count - a.stargazers_count )
-    //       .slice(0, 10);
-    //   let recent = recentStorage.map((r) => r.id_repo);
-    //   let orig = initialRepos.map((o) => o.id_repo);
-    //   let updatedRepo = recent.filter((r) => orig.includes(r));
-    //   let newRepo = recent.filter((r) => !orig.includes(r));
-    //   // retrieve repos from db again as additional ones have been added
-    //   retrieve( (final) => {
-    //     let top25 = final.sort((a,b) => b.updated_at - a.updated_at )
-    //     .sort((a,b) => b.stargazers_count - a.stargazers_count )
-    //     .slice(0, 25);
-    //     let allUsers = [...new Set(final.map(o => o.login))];
-    //     // Save users with collab list into Collab repo
-    //     saveCollab({user, list}, (recent) => {
-    //       // retrieveCollab(user, (everyCollaborator) => {
-    //         res.send({ repos: top25, top10, newRepo, updatedRepo, list, allUsers });
-    //         res.send({ user });
-    //       // });
-    //     });
-    //   });
-    // });
+      retrieve()
+      .then((initialRepos) => {
+        save(repoJSON)
+        .then((stat) => {
+          retrieve()
+          .then((recentStorage)=> {
+            repoFilter(recentStorage, initialRepos, user)
+            .then(({top10, top25, allUsers, updatedRepo, newRepo}) => {
+              saveCollab({user, list}, (stat) => {
+                res.send({ repos: top25, top10, newRepo, updatedRepo, list, allUsers });
+              }).catch((err) => {
+                throw(err);
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 });
 
 app.get('/repos', function (req, res) {
-  // retrieve( (data) => {
-  //   let top25 = data.sort((a,b) => b.updated_at - a.updated_at )
-  //     .sort((a,b) => b.stargazers_count - a.stargazers_count )
-  //     .slice(0, 25);
-  //     let allUsers = [...new Set(data.map(o => o.login))];
-  //   res.send({ repos: top25, allUsers });
-  // });
+  retrieve()
+  .then((recentStorage) => {
+    repoFilter(recentStorage)
+    .then(({ top25, allUsers }) => {
+      res.send({ repos: top25, allUsers });
+    }).catch((err) => {
+      throw(err);
+    });
+  });
 });
 
 

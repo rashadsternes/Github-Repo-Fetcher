@@ -20,10 +20,10 @@ class App extends React.Component {
     }
   }
   componentDidMount () {
-    // $.get('/repos', (data) => {
-    //   console.log(data);
-    //   this.setState({repos: data.repos, users: data.allUsers});
-    // })
+    $.get('/repos', (data) => {
+      console.log(data);
+      this.setState({repos: data.repos, users: data.allUsers});
+    })
   }
   search (term) {
     console.log(`${term} was searched`);
