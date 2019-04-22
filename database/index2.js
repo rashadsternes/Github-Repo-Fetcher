@@ -1,5 +1,5 @@
 const mysql = require('promise-mysql');
-const { createCollabTable, createRepoTable, selectAllRepos, insertRepo, insertCollab, allRepoByName } = require('./queryStrings');
+const { createCollabTable, createRepoTable, selectAllRepos, insertRepo, insertCollab } = require('./queryStrings');
 const { convertToArr, convertToCollab } = require('../helpers/github');
 
 // const details = {

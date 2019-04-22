@@ -18,7 +18,6 @@ module.exports.createCollabTable = `CREATE TABLE IF NOT EXISTS Collab (
 )`;
 
 module.exports.selectAllRepos = `SELECT * FROM repo`;
-module.exports.allCollabByName = `SELECT collabName FROM collab WHERE name = ?`;
 module.exports.insertRepo = `INSERT INTO repo(
   id_repo, name, html_url, description, updated_at,
   stargazers_count, id_Owners, login, avatarUrl)
